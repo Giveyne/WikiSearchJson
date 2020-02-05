@@ -1,6 +1,6 @@
 package resource.UrlConnection;
 
-import java.io.BufferedReader;
+import java.io.*;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -21,18 +21,19 @@ public class Connection {
             HttpURLConnection connection = (HttpURLConnection) obj.openConnection(); // получаем сущность URL
 
             connection.setRequestMethod("GET"); // получаем метод запроса GET (запрашиваем данные для считывания)
-            BufferedReader in = new BufferedReader(
-                                new InputStreamReader(
-                                connection.getInputStream())
-                                );// возвращаем InputStream из соединения
 
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
+            BufferedInputStream inputStream =
+                    new BufferedInputStream(connection.getInputStream());// возвращаем InputStream из соединения
+            try(ByteArrayOutputStream result = new ByteArrayOutputStream()) {
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = inputStream.read(buffer)) != -1) {
+                    result.write(buffer, 0, length);
+                }
+                inputStream.close();
+                connection.disconnect();
+                return result.toString("UTF-8");
             }
-            result = response.toString(); // переводим СтрингБаффер в Стринг
-            in.close();
-            connection.disconnect();
-        return result;
         } catch (MalformedInputException | ProtocolException e) {
             e.printStackTrace();
         } catch (IOException ex){
