@@ -13,11 +13,14 @@ public class Main {
         System.out.println("Enter find word" );
         Scanner in = new Scanner(System.in);
         String wordFine = in.nextLine();
-
+        long start = System.nanoTime();
         Connection connection = new Connection();
         String wordText = connection.setRead(wordFine);
         JsonParsing parsing = new JsonParsing();
         parsing.readJson(wordText);
+        long finish = System.nanoTime();
+        long timeConsumedMillis = finish - start;
+        System.out.println(timeConsumedMillis);
     }
 }
 

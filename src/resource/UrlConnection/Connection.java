@@ -7,13 +7,15 @@ import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.MalformedInputException;
-
+import org.apache.commons.io.IOUtils;
+import java.nio.charset.StandardCharsets;
 public class Connection {
 
     private String url = "https://ru.wikipedia.org/w/api.php?action=query&list=search&utf8=&format=json&srsearch=";
     private StringBuffer response = new StringBuffer();
     private String inputLine;
     private String result;
+
     //url = URLEncoder.encode(url, "UTF-8"); если вдруг надо перекодировать
     public String setRead(String wordFine){ // метож считывающий текст из википедии и возвращает результат
         try {
@@ -24,16 +26,22 @@ public class Connection {
 
             BufferedInputStream inputStream =
                     new BufferedInputStream(connection.getInputStream());// возвращаем InputStream из соединения
-            try(ByteArrayOutputStream result = new ByteArrayOutputStream()) {
-                byte[] buffer = new byte[1024];
-                int length;
-                while ((length = inputStream.read(buffer)) != -1) {
-                    result.write(buffer, 0, length);
-                }
-                inputStream.close();
-                connection.disconnect();
-                return result.toString("UTF-8");
-            }
+// через IOUtils и через ByteArray разница минимальна
+            String result = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+            inputStream.close();
+            connection.disconnect();
+            return result;
+
+//            try(ByteArrayOutputStream result = new ByteArrayOutputStream()) {
+//                byte[] buffer = new byte[1024];
+//                int length;
+//                while ((length = inputStream.read(buffer)) != -1) {
+//                    result.write(buffer, 0, length);
+//                }
+//                inputStream.close();
+//                connection.disconnect();
+//                return result.toString("UTF-8");
+//            }
         } catch (MalformedInputException | ProtocolException e) {
             e.printStackTrace();
         } catch (IOException ex){
